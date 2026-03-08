@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { google } from "googleapis";
-import { getAuthedOAuthClient } from "@/lib/googleAuth";
 import { BOOKING_CONFIG } from "@/lib/constants";
+import { refreshAccessToken } from "@/lib/microsoftAuth";
+import { getGraphClient } from "@/lib/msGraph";
 
 const SLOT_MINUTES = 60;
 
@@ -18,14 +18,6 @@ export async function GET(req: Request) {
     const dateStr = searchParams.get("date"); // YYYY-MM-DD
     if (!dateStr) {
         return NextResponse.json({ error: "Missing date (YYYY-MM-DD)" }, { status: 400 });
-    }
-
-    const calendarId = process.env.BOOKING_CALENDAR_ID;
-    if (!calendarId) {
-        return NextResponse.json(
-            { error: "Missing BOOKING_CALENDAR_ID in .env.local" },
-            { status: 500 }
-        );
     }
 
     const timeZone = process.env.TIMEZONE || "Africa/Mogadishu";
@@ -56,25 +48,28 @@ export async function GET(req: Request) {
     /* ---- Earliest bookable time (now + MIN_LEAD_MINUTES) ---- */
     const earliest = addMinutes(now, BOOKING_CONFIG.MIN_LEAD_MINUTES);
 
-    const auth = getAuthedOAuthClient();
-    const cal = google.calendar({ version: "v3", auth });
+    interface BusySlot {
+        start: { dateTime: string };
+        end: { dateTime: string };
+    }
+    let busy: BusySlot[] = [];
+    try {
+        const auth = await refreshAccessToken();
+        const client = getGraphClient(auth.access_token);
 
-    const fb = await cal.freebusy.query({
-        requestBody: {
-            timeMin: dayStart.toISOString(),
-            timeMax: dayEnd.toISOString(),
-            timeZone,
-            items: [{ id: calendarId }],
-        },
-    });
-    console.log("Using calendar:", calendarId);
+        const response = await client.api('/me/calendarview')
+            .query({
+                startDateTime: dayStart.toISOString(),
+                endDateTime: dayEnd.toISOString()
+            })
+            .select('start,end')
+            .get();
 
-    // Google sometimes returns the calendar under a resolved key (like your email), not "primary"
-    const calendarsMap = fb.data.calendars || {};
-    const resolvedKey =
-        calendarsMap[calendarId] ? calendarId : Object.keys(calendarsMap)[0];
-
-    const busy = (resolvedKey ? calendarsMap[resolvedKey]?.busy : []) || [];
+        busy = response.value || [];
+    } catch (error) {
+        console.error("Error fetching MS Graph schedule:", error);
+        return NextResponse.json({ error: "Failed to fetch availability. Have you connected your Microsoft account?" }, { status: 500 });
+    }
 
     const slots: string[] = [];
     for (let t = new Date(dayStart); t < dayEnd; t = addMinutes(t, SLOT_MINUTES)) {
@@ -84,7 +79,13 @@ export async function GET(req: Request) {
         if (t < earliest) continue;
 
         // Skip slots that conflict with existing calendar events (double-booking prevention)
-        const conflict = busy.some((b) => overlaps(t, end, new Date(b.start!), new Date(b.end!)));
+        const conflict = busy.some((b) => {
+            // MS Graph returns format like "2024-05-18T10:00:00.0000000" and timeZone "UTC"
+            // We append "Z" to parse it as UTC correctly in JS Date if it's not present
+            const bStart = new Date(b.start.dateTime.endsWith("Z") ? b.start.dateTime : b.start.dateTime + "Z");
+            const bEnd = new Date(b.end.dateTime.endsWith("Z") ? b.end.dateTime : b.end.dateTime + "Z");
+            return overlaps(t, end, bStart, bEnd);
+        });
         if (!conflict) slots.push(t.toISOString());
     }
 

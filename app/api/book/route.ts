@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { google } from "googleapis";
-import { getAuthedOAuthClient } from "@/lib/googleAuth";
+import { refreshAccessToken } from "@/lib/microsoftAuth";
+import { getGraphClient } from "@/lib/msGraph";
 
 const DURATION_MINUTES = 30;
 
@@ -31,27 +31,37 @@ export async function POST(req: Request) {
             );
         }
 
-        const calendarId = process.env.BOOKING_CALENDAR_ID || "primary";
-        const timeZone = process.env.TIMEZONE || "Africa/Mogadishu";
         const officeAddress = process.env.OFFICE_ADDRESS || "Our office";
-
-        const auth = await getAuthedOAuthClient();
-        const cal = google.calendar({ version: "v3", auth });
 
         const start = new Date(startISO);
         const end = addMinutes(start, DURATION_MINUTES);
 
-        // 1) re-check free/busy for conflict (race condition protection)
-        const fb = await cal.freebusy.query({
-            requestBody: {
-                timeMin: start.toISOString(),
-                timeMax: end.toISOString(),
-                timeZone,
-                items: [{ id: calendarId }],
-            },
-        });
+        let client;
+        try {
+            console.log("[BOOK] Refreshing access token...");
+            const auth = await refreshAccessToken();
+            console.log("[BOOK] Got access token ✓");
+            client = getGraphClient(auth.access_token);
+        } catch (error) {
+            console.error("[BOOK] ❌ Error authenticating with MS Graph:", error);
+            return NextResponse.json(
+                { ok: false, error: "Failed to authenticate with calendar" },
+                { status: 500 }
+            );
+        }
 
-        const busy = fb.data.calendars?.[calendarId]?.busy || [];
+        // 1. Re-check availability to prevent race condition
+        console.log("[BOOK] Checking availability for:", start.toISOString(), "to", end.toISOString());
+        const calendarViewRes = await client.api('/me/calendarview')
+            .query({
+                startDateTime: start.toISOString(),
+                endDateTime: end.toISOString()
+            })
+            .select('start,end')
+            .get();
+
+        const busy = calendarViewRes.value || [];
+        console.log("[BOOK] Busy slots found:", busy.length);
         if (busy.length > 0) {
             return NextResponse.json(
                 { ok: false, error: "Slot already taken" },
@@ -59,70 +69,72 @@ export async function POST(req: Request) {
             );
         }
 
-        // 2) build event
-        const eventBody: any = {
-            summary: `Demo Booking — ${company}`,
-            description: [
-                `Name: ${name}`,
-                `Email: ${email}`,
-                `Company: ${company}`,
-                `Company size: ${companySize || "-"}`,
-                `Role: ${role || "-"}`,
-                `WhatsApp: ${whatsapp}`,
-                `Meeting type: ${meetingType}`,
-                `Biggest challenge: ${challenge || "-"}`,
-            ].join("\n"),
-            start: { dateTime: start.toISOString(), timeZone },
-            end: { dateTime: end.toISOString(), timeZone },
-            attendees: [{ email }],
+        // 2. Build Event
+        const eventBody: Record<string, unknown> = {
+            subject: `Demo Booking — ${company}`,
+            body: {
+                contentType: "HTML",
+                content: `
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Company:</strong> ${company}</p>
+                    <p><strong>Company size:</strong> ${companySize || "-"}</p>
+                    <p><strong>Role:</strong> ${role || "-"}</p>
+                    <p><strong>WhatsApp:</strong> ${whatsapp}</p>
+                    <p><strong>Meeting type:</strong> ${meetingType}</p>
+                    <p><strong>Biggest challenge:</strong> ${challenge || "-"}</p>
+                `
+            },
+            start: { dateTime: start.toISOString(), timeZone: "UTC" },
+            end: { dateTime: end.toISOString(), timeZone: "UTC" },
+            attendees: [
+                // The client who booked
+                {
+                    emailAddress: { address: email, name: name },
+                    type: "required" as const
+                },
+                // All team members from TEAM_EMAILS env variable
+                ...(process.env.TEAM_EMAILS || "")
+                    .split(",")
+                    .map(e => e.trim())
+                    .filter(e => e.length > 0 && e !== email)
+                    .map(teamEmail => ({
+                        emailAddress: { address: teamEmail, name: teamEmail.split("@")[0] },
+                        type: "required" as const
+                    }))
+            ]
         };
 
         if (meetingType === "office") {
-            eventBody.location = officeAddress; // no Google Meet
+            eventBody.location = { displayName: officeAddress };
         }
 
         if (meetingType === "video") {
-            eventBody.conferenceData = {
-                createRequest: {
-                    requestId: `meet-${Date.now()}`,
-                    conferenceSolutionKey: { type: "hangoutsMeet" },
-                },
-            };
+            eventBody.isOnlineMeeting = true;
+            eventBody.onlineMeetingProvider = "teamsForBusiness";
         }
 
-        // 3) create event
-        const event = await cal.events.insert({
-            calendarId,
-            conferenceDataVersion: meetingType === "video" ? 1 : 0,
-            requestBody: eventBody,
-        }) as unknown as { data: any };
+        // 3. Create event
+        console.log("[BOOK] Creating event on MS Graph...");
+        const event = await client.api('/me/events').post(eventBody);
+        console.log("[BOOK] ✅ Event created! ID:", event.id);
+        console.log("[BOOK] Online meeting:", JSON.stringify(event.onlineMeeting));
 
         let meetLink: string | undefined = undefined;
-
-        if (meetingType === "video" && event.data.id) {
-            // Sometimes meet link isn't attached immediately in insert response,
-            // so we re-fetch the event.
-            const fetched = await cal.events.get({
-                calendarId,
-                eventId: event.data.id,
-            }) as unknown as { data: any };
-
-            meetLink =
-                fetched.data.hangoutLink ||
-                fetched.data.conferenceData?.entryPoints?.find(
-                    (e: any) => e.entryPointType === "video"
-                )?.uri ||
-                undefined;
+        if (meetingType === "video" && event.onlineMeeting) {
+            meetLink = event.onlineMeeting.joinUrl;
+            console.log("[BOOK] Teams link:", meetLink);
         }
 
         return NextResponse.json({
             ok: true,
-            eventId: event.data.id,
+            eventId: event.id,
             meetLink,
         });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : "Server error";
         return NextResponse.json(
-            { ok: false, error: err?.message || "Server error" },
+            { ok: false, error: errorMsg },
             { status: 500 }
         );
     }

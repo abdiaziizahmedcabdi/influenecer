@@ -52,15 +52,27 @@ export async function refreshAccessToken() {
         scope: SCOPES,
     });
 
-    const res = await fetch(tokenUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
-    });
+    let res;
+    try {
+        console.log(`[AUTH] Attempting to refresh token for tenant: ${TENANT}...`);
+        res = await fetch(tokenUrl(), {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body,
+        });
+    } catch (networkError) {
+        console.error("[AUTH] ❌ Network error trying to reach Microsoft:");
+        console.error(networkError);
+        throw new Error("Cannot connect to Microsoft servers. Please check your internet connection or firewall.");
+    }
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data?.error_description || "Failed to refresh token");
+    if (!res.ok) {
+        console.error("[AUTH] ❌ Microsoft rejected the refresh token:", data);
+        throw new Error(data?.error_description || "Failed to refresh token");
+    }
 
+    console.log("[AUTH] ✅ Token refreshed successfully");
     return data as {
         access_token: string;
         refresh_token?: string;
