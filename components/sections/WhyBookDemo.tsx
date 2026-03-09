@@ -1,5 +1,6 @@
 import { WHY_BOOK } from "@/lib/constants";
-import { Container, SectionTitle } from "@/components/ui";
+import { Container } from "@/components/ui/Container";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 
 function BenefitIcon({ type }: { type: string }) {
     const iconClass = "w-8 h-8 text-accent";

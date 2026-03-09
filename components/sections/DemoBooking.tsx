@@ -99,7 +99,7 @@ export function DemoBooking() {
 
         try {
             const res = await fetch(
-                `/api/availability?date=${encodeURIComponent(dateYMD)}`,
+                `/api/booking/availability?date=${encodeURIComponent(dateYMD)}`,
                 {
                     method: "GET",
                     cache: "no-store",
@@ -132,7 +132,7 @@ export function DemoBooking() {
         setBookError(null);
 
         try {
-            const res = await fetch("/api/book", {
+            const res = await fetch("/api/booking/submit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

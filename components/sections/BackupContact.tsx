@@ -1,5 +1,5 @@
 import { CONTACT } from "@/lib/constants";
-import { Container } from "@/components/ui";
+import { Container } from "@/components/ui/Container";
 
 export function BackupContact() {
     return (

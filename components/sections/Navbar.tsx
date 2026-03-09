@@ -1,5 +1,6 @@
 import { SITE_NAME } from "@/lib/constants";
-import { Container, Button } from "@/components/ui";
+import { Container } from "@/components/ui/Container";
+import { Button } from "@/components/ui/Button";
 
 export function Navbar() {
     return (

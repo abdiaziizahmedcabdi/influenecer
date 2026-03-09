@@ -1,5 +1,5 @@
 import { SITE_NAME } from "@/lib/constants";
-import { Container } from "@/components/ui";
+import { Container } from "@/components/ui/Container";
 
 export function Footer() {
     return (
