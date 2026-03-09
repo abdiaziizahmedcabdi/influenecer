@@ -250,17 +250,26 @@ export function DemoBooking() {
                                         const isSelected =
                                             selectedDate && toYMD(cell) === toYMD(selectedDate);
 
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        const isPast = cell < today;
+
                                         return (
                                             <button
                                                 key={idx}
                                                 type="button"
+                                                disabled={isPast}
                                                 onClick={() => {
-                                                    setSelectedDate(cell);
-                                                    setStep("pick");
+                                                    if (!isPast) {
+                                                        setSelectedDate(cell);
+                                                        setStep("pick");
+                                                    }
                                                 }}
-                                                className={`h-9 rounded-md text-sm transition ${isSelected
-                                                    ? "bg-heading text-white"
-                                                    : "border border-transparent hover:border-neutral-200 hover:bg-neutral-50"
+                                                className={`h-9 rounded-md text-sm transition ${isPast
+                                                    ? "opacity-30 cursor-not-allowed bg-transparent"
+                                                    : isSelected
+                                                        ? "bg-heading text-white"
+                                                        : "border border-transparent hover:border-neutral-200 hover:bg-neutral-50"
                                                     }`}
                                             >
                                                 {cell.getDate()}
@@ -306,8 +315,9 @@ export function DemoBooking() {
                                 )}
 
                                 {!loadingSlots && !slotsError && slots.length === 0 && (
-                                    <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-600">
-                                        No available times for this day.
+                                    <div className="rounded-md border border-neutral-200 bg-neutral-100 p-4 text-center">
+                                        <p className="font-semibold text-neutral-800">This day is fully booked.</p>
+                                        <p className="mt-1 text-sm text-neutral-600">Please select another date from the calendar to see available times.</p>
                                     </div>
                                 )}
 
