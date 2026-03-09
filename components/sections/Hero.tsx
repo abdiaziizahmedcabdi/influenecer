@@ -18,7 +18,7 @@ export function Hero() {
                         <Button size="lg">{HERO.primaryCta}</Button>
                     </a>
                     <p className="text-sm font-medium text-body/80">
-                        Personalized strategy session · No commitment required
+                        Personalized strategy session
                     </p>
                 </div>
             </Container>

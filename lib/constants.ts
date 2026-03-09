@@ -79,7 +79,7 @@ export const BOOKING_CONFIG = {
 /* -------------------------------------------------- */
 
 export const TRUST =
-    "No commitment required. Free 30-minute strategy session. Secure and confidential.";
+    "Perfect for meeting your team and experiencing a live product demo. Secure and confidential.";
 
 /* -------------------------------------------------- */
 /*  Contact                                            */

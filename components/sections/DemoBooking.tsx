@@ -569,7 +569,7 @@ export function DemoBooking() {
                 </div>
 
                 <div className="mt-6 text-center text-sm font-medium text-body/80">
-                    No commitment required. Free personalized strategy session. Secure and confidential.
+                    Free personalized strategy session Secure and confidential.
                 </div>
             </div>
         </section>
