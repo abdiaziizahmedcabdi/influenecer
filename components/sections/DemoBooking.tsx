@@ -99,7 +99,7 @@ export function DemoBooking() {
 
         try {
             const res = await fetch(
-                `/api/booking/availability?date=${encodeURIComponent(dateYMD)}`,
+                `/api/availability?date=${encodeURIComponent(dateYMD)}`,
                 {
                     method: "GET",
                     cache: "no-store",
@@ -132,7 +132,7 @@ export function DemoBooking() {
         setBookError(null);
 
         try {
-            const res = await fetch("/api/booking/submit", {
+            const res = await fetch("/api/book", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -191,19 +191,19 @@ export function DemoBooking() {
                 {step !== "success" && (
                     <div className="mb-4 flex items-center gap-2 text-xs text-neutral-500">
                         <span
-                            className={`rounded-full px-2 py-1 ${step === "pick" ? "bg-neutral-900 text-white" : "bg-neutral-100"
+                            className={`rounded-full px-2 py-1 ${step === "pick" ? "bg-heading text-white" : "bg-accent-light text-body/80"
                                 }`}
                         >
                             1. Date & Time
                         </span>
                         <span
-                            className={`rounded-full px-2 py-1 ${step === "details" ? "bg-neutral-900 text-white" : "bg-neutral-100"
+                            className={`rounded-full px-2 py-1 ${step === "details" ? "bg-heading text-white" : "bg-accent-light text-body/80"
                                 }`}
                         >
                             2. Your Details
                         </span>
                         <span
-                            className="rounded-full px-2 py-1 bg-neutral-100"
+                            className="rounded-full px-2 py-1 bg-accent-light text-body/80"
                         >
                             3. Confirmed
                         </span>
@@ -259,7 +259,7 @@ export function DemoBooking() {
                                                     setStep("pick");
                                                 }}
                                                 className={`h-9 rounded-md text-sm transition ${isSelected
-                                                    ? "bg-neutral-900 text-white"
+                                                    ? "bg-heading text-white"
                                                     : "border border-transparent hover:border-neutral-200 hover:bg-neutral-50"
                                                     }`}
                                             >
@@ -293,7 +293,7 @@ export function DemoBooking() {
                                         {Array.from({ length: 4 }).map((_, i) => (
                                             <div
                                                 key={i}
-                                                className="h-10 animate-pulse rounded-md bg-neutral-100"
+                                                className="h-10 animate-pulse rounded-md bg-accent-light text-body/80"
                                             />
                                         ))}
                                     </div>
@@ -321,7 +321,7 @@ export function DemoBooking() {
                                                     type="button"
                                                     onClick={() => setSelectedSlotISO(iso)}
                                                     className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm ${active
-                                                        ? "border-neutral-900 bg-neutral-900 text-white"
+                                                        ? "border-heading bg-heading text-white"
                                                         : "border-neutral-200 hover:bg-neutral-50"
                                                         }`}
                                                 >
@@ -341,7 +341,7 @@ export function DemoBooking() {
                                         disabled={!canContinueToDetails}
                                         onClick={() => setStep("details")}
                                         className={`w-full rounded-lg px-4 py-2 text-sm font-medium ${canContinueToDetails
-                                            ? "bg-[#3E6E9E] text-white hover:bg-[#355F8A]"
+                                            ? "bg-accent text-white hover:bg-heading"
                                             : "cursor-not-allowed bg-neutral-200 text-neutral-500"
                                             }`}
                                     >
@@ -376,7 +376,7 @@ export function DemoBooking() {
                                             type="button"
                                             onClick={() => setMeetingType("office")}
                                             className={`rounded-lg border px-3 py-2 text-sm ${meetingType === "office"
-                                                ? "border-neutral-900 bg-neutral-900 text-white"
+                                                ? "border-heading bg-heading text-white"
                                                 : "border-neutral-200 hover:bg-neutral-50"
                                                 }`}
                                         >
@@ -386,7 +386,7 @@ export function DemoBooking() {
                                             type="button"
                                             onClick={() => setMeetingType("video")}
                                             className={`rounded-lg border px-3 py-2 text-sm ${meetingType === "video"
-                                                ? "border-neutral-900 bg-neutral-900 text-white"
+                                                ? "border-heading bg-heading text-white"
                                                 : "border-neutral-200 hover:bg-neutral-50"
                                                 }`}
                                         >
@@ -402,7 +402,7 @@ export function DemoBooking() {
                                     <input
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading"
                                         placeholder="Your name"
                                     />
                                 </div>
@@ -414,7 +414,7 @@ export function DemoBooking() {
                                     <input
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading"
                                         placeholder="you@example.com"
                                     />
                                 </div>
@@ -426,7 +426,7 @@ export function DemoBooking() {
                                     <input
                                         value={company}
                                         onChange={(e) => setCompany(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading"
                                         placeholder="Company name"
                                     />
                                 </div>
@@ -438,7 +438,7 @@ export function DemoBooking() {
                                     <select
                                         value={companySize}
                                         onChange={(e) => setCompanySize(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-heading"
                                     >
                                         <option value="">Select...</option>
                                         <option value="1-10">1–10</option>
@@ -455,7 +455,7 @@ export function DemoBooking() {
                                     <input
                                         value={role}
                                         onChange={(e) => setRole(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading"
                                         placeholder="CEO, Manager..."
                                     />
                                 </div>
@@ -467,7 +467,7 @@ export function DemoBooking() {
                                     <input
                                         value={whatsapp}
                                         onChange={(e) => setWhatsapp(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading"
                                         placeholder="+252..."
                                     />
                                 </div>
@@ -481,7 +481,7 @@ export function DemoBooking() {
                                         value={challenge}
                                         onChange={(e) => setChallenge(e.target.value)}
                                         rows={3}
-                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-900 resize-none"
+                                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-heading resize-none"
                                         placeholder="Tell us about the problems you are trying to solve..."
                                     />
                                 </div>
@@ -507,7 +507,7 @@ export function DemoBooking() {
                                     disabled={!canConfirm || booking}
                                     onClick={submitBooking}
                                     className={`rounded-lg px-4 py-2 text-sm font-medium flex-1 ${canConfirm && !booking
-                                        ? "bg-[#3E6E9E] text-white hover:bg-[#355F8A]"
+                                        ? "bg-accent text-white hover:bg-heading"
                                         : "cursor-not-allowed bg-neutral-200 text-neutral-500"
                                         }`}
                                 >

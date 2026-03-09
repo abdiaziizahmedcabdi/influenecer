@@ -6,11 +6,16 @@ html {
 
 :root {
   --bg: #FFFFFF;
-  --heading: #0F172A;
-  --body: #334155;
-  --accent: #000000;
-  --accent-light: #F8FAFC;
-  --border: #E2E8F0;
+  --heading: #0B192C;
+  /* Deep Navy */
+  --body: #3B82F6;
+  /* Light/Medium Blue */
+  --accent: #2563EB;
+  /* Professional Blue (for glows/buttons) */
+  --accent-light: #EFF6FF;
+  /* Very faint blue for cards/bgs */
+  --border: #BFDBFE;
+  /* Soft blue border */
 }
 
 @theme inline {
