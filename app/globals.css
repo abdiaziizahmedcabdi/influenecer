@@ -7,15 +7,15 @@ html {
 :root {
   --bg: #FFFFFF;
   --heading: #0B192C;
-  /* Deep Navy */
-  --body: #3B82F6;
-  /* Light/Medium Blue */
-  --accent: #2563EB;
-  /* Professional Blue (for glows/buttons) */
-  --accent-light: #EFF6FF;
-  /* Very faint blue for cards/bgs */
-  --border: #BFDBFE;
-  /* Soft blue border */
+  /* Dark Navy Headings */
+  --body: #1E293B;
+  /* Dark Blue-Gray Body Text */
+  --accent: #0B192C;
+  /* Dark Navy Buttons & Glows */
+  --accent-light: #F1F5F9;
+  /* Faint Navy Tint Backgrounds */
+  --border: #CBD5E1;
+  /* Soft Navy-Gray Borders */
 }
 
 @theme inline {
