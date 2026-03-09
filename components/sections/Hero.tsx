@@ -17,8 +17,8 @@ export function Hero() {
                     <a href="#book">
                         <Button size="lg">{HERO.primaryCta}</Button>
                     </a>
-                    <p className="text-sm text-body/60">
-                        30-minute personalized session · No commitment required
+                    <p className="text-sm font-medium text-body/80">
+                        Personalized strategy session · No commitment required
                     </p>
                 </div>
             </Container>

@@ -13,7 +13,7 @@ export const SITE_NAME = "Keydsolutions";
 export const HERO = {
     headline: "Schedule Your Personalized Demo",
     subheadline:
-        "Discover how our influencer platform transforms business operations with real-time intelligence and centralized control.",
+        "Discover how our toktify platform transforms business operations with real-time intelligence and centralized control.",
     primaryCta: "Book Your Demo",
 };
 

@@ -568,8 +568,8 @@ export function DemoBooking() {
                     )}
                 </div>
 
-                <div className="mt-6 text-center text-sm text-neutral-500">
-                    No commitment required. Free 30-minute strategy session. Secure and confidential.
+                <div className="mt-6 text-center text-sm font-medium text-body/80">
+                    No commitment required. Free personalized strategy session. Secure and confidential.
                 </div>
             </div>
         </section>
