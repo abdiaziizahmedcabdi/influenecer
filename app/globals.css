@@ -19,12 +19,17 @@ html {
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-heading: var(--heading);
-  --color-body: var(--body);
-  --color-accent: var(--accent);
-  --color-accent-light: var(--accent-light);
-  --color-border: var(--border);
+  --color-bg: #FFFFFF;
+  --color-heading: #0B192C;
+  /* Dark Navy Headings */
+  --color-body: #1E293B;
+  /* Dark Blue-Gray Body Text */
+  --color-accent: #0B192C;
+  /* Dark Navy Buttons & Glows */
+  --color-accent-light: #F1F5F9;
+  /* Faint Navy Tint Backgrounds */
+  --color-border: #CBD5E1;
+  /* Soft Navy-Gray Borders */
   --font-sans: var(--font-poppins);
 }
 
