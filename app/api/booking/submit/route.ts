@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { refreshAccessToken } from "@/lib/microsoftAuth";
 import { getGraphClient } from "@/lib/msGraph";
 
-const DURATION_MINUTES = 30;
+const DURATION_MINUTES = 120;
 
 function addMinutes(d: Date, mins: number) {
     return new Date(d.getTime() + mins * 60_000);

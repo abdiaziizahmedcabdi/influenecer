@@ -41,9 +41,9 @@ export async function GET(req: Request) {
 
     /* ---- Build work-hour window ---- */
     const dayStart = new Date(requestedDay);
-    dayStart.setHours(BOOKING_CONFIG.WORK_START_HOUR, 0, 0, 0);
+    dayStart.setHours(1, 0, 0, 0);
     const dayEnd = new Date(requestedDay);
-    dayEnd.setHours(BOOKING_CONFIG.WORK_END_HOUR, 0, 0, 0);
+    dayEnd.setHours(6, 0, 0, 0);
 
     /* ---- Earliest bookable time (now + MIN_LEAD_MINUTES) ---- */
     const earliest = addMinutes(now, BOOKING_CONFIG.MIN_LEAD_MINUTES);
@@ -72,8 +72,16 @@ export async function GET(req: Request) {
     }
 
     const slots: string[] = [];
-    for (let t = new Date(dayStart); t < dayEnd; t = addMinutes(t, SLOT_MINUTES)) {
-        const end = addMinutes(t, SLOT_MINUTES);
+    const DURATION_MINUTES = 120; // 2 hours
+
+    // We only want 1:00 AM and 4:00 AM slots directly
+    const possibleStartTimes = [
+        new Date(requestedDay.getFullYear(), requestedDay.getMonth(), requestedDay.getDate(), 1, 0, 0, 0),
+        new Date(requestedDay.getFullYear(), requestedDay.getMonth(), requestedDay.getDate(), 4, 0, 0, 0)
+    ];
+
+    for (const t of possibleStartTimes) {
+        const end = addMinutes(t, DURATION_MINUTES);
 
         // Skip slots that start before the minimum lead time
         if (t < earliest) continue;
