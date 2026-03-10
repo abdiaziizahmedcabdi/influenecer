@@ -10,9 +10,16 @@ export function Navbar() {
                     {SITE_NAME}
                 </span>
 
-                <a href="#book">
-                    <Button size="sm">Book Your Demo</Button>
-                </a>
+                <div className="hidden sm:block">
+                    <a href="#book">
+                        <Button size="sm">Book Your Demo</Button>
+                    </a>
+                </div>
+                <div className="sm:hidden">
+                    <a href="#book">
+                        <Button size="xs">Book Your Demo</Button>
+                    </a>
+                </div>
             </Container>
         </header>
     );
