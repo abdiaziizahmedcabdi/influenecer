@@ -74,10 +74,16 @@ export async function GET(req: Request) {
     const slots: string[] = [];
     const DURATION_MINUTES = 120; // 2 hours
 
-    // We only want 1:00 AM and 4:00 AM slots directly
+    // We want 1:00 AM and 4:00 AM in Mogadishu Time (UTC+3). 
+    // This means 22:00 UTC (previous day) and 01:00 UTC (current day).
+    const year = requestedDay.getUTCFullYear();
+    const month = requestedDay.getUTCMonth();
+    const date = requestedDay.getUTCDate();
+
+    // UTC creation so it aligns perfectly with the target timezone when rendered
     const possibleStartTimes = [
-        new Date(requestedDay.getFullYear(), requestedDay.getMonth(), requestedDay.getDate(), 1, 0, 0, 0),
-        new Date(requestedDay.getFullYear(), requestedDay.getMonth(), requestedDay.getDate(), 4, 0, 0, 0)
+        new Date(Date.UTC(year, month, date - 1, 22, 0, 0, 0)), // Previous day 22:00 UTC = 1:00 AM UTC+3
+        new Date(Date.UTC(year, month, date, 1, 0, 0, 0))      // Current day 01:00 UTC = 4:00 AM UTC+3
     ];
 
     for (const t of possibleStartTimes) {
