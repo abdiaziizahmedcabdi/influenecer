@@ -66,7 +66,7 @@ export const BOOKING = {
 
 export const BOOKING_CONFIG = {
     /** Minimum minutes from *now* before a slot is bookable */
-    MIN_LEAD_MINUTES: 120, // 2 hours
+    MIN_LEAD_MINUTES: 2880, // 48 hours (2 days)
     /** Maximum days into the future that can be booked */
     MAX_ADVANCE_DAYS: 60,
     /** Work-hour boundaries (24-h) */
