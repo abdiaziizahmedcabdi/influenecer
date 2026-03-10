@@ -161,8 +161,8 @@ export function PlatformShowcase() {
                             </div>
                         </div>
 
-                        {/* Elegant Monitor Stand */}
-                        <div className="flex flex-col items-center relative z-0 -mt-2">
+                        {/* Elegant Monitor Stand - Hidden on Mobile */}
+                        <div className="hidden sm:flex flex-col items-center relative z-0 -mt-2">
                             <div className="h-12 w-24 bg-gradient-to-b from-[#1c1d21] to-[#2c2f33] border-x border-[#3c4043] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
                             </div>
